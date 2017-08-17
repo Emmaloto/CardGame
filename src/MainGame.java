@@ -11,7 +11,9 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 
 
 	private JFrame fr;
-	private Image red, blue, green, yellow, purple, backdesign, branch, screenbg, endimg;
+//	private Image red, blue, green, yellow, purple, branch;
+	private Image car, clock, diamond, hippo, house, roses, target;
+	private Image  backdesign, screenbg, endimg;	
 	private Image[] cardfaces;
 	
 	//private Card testCard ;
@@ -45,8 +47,9 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		
 		loadImages();
 		
-		cardfaces = GameUtilities.placeImages(red, blue, green, yellow, purple, branch);
-	    
+		//cardfaces = GameUtilities.placeImages(red, blue, green, yellow, purple, branch);
+		cardfaces = GameUtilities.placeImages(car, clock, diamond, hippo, house, roses, target);
+		
 		info = new Screen(screenbg);
 		//endScreen = new Screen(endimg);
 		//info.changeTextPosition(50,50);
@@ -104,10 +107,10 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		
 		// Set cards
 		for(int i = 0, j = 0; i < playingCards.length; i++){
-			if(i % 2 == 0) j++;                        // if a second card is selected
+			if(i % 2 == 0) j = GameUtilities.getRandomInteger(0, cardfaces.length - 1);                        // if a second card is selected
 			 
 			// If there are no more new colors
-			if(j >= cardfaces.length) j = GameUtilities.getRandomInteger(0, cardfaces.length - 1);          
+			//if(j >= cardfaces.length) j = GameUtilities.getRandomInteger(0, cardfaces.length - 1);          
 			  
 			playingCards[i] = new Card(cardfaces[j], backdesign, this);
 		
@@ -334,12 +337,21 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 	private void loadImages(){
 		
 		try {
+			/*
 			blue = ImageIO.read(this.getClass().getResource("pics/bluecard.png"));
 			red = ImageIO.read(this.getClass().getResource("pics/redcard.png"));
 			green = ImageIO.read(this.getClass().getResource("pics/green.png"));
 			yellow = ImageIO.read(this.getClass().getResource("pics/yellowcard.png"));
 			purple = ImageIO.read(this.getClass().getResource("pics/purplecard.png"));
 			branch = ImageIO.read(this.getClass().getResource("pics/leafcard.png"));
+			*/
+			car     = ImageIO.read(this.getClass().getResource("pics/card_car.png"));
+			clock   = ImageIO.read(this.getClass().getResource("pics/card_clock.png"));
+			diamond = ImageIO.read(this.getClass().getResource("pics/card_diamond.png"));
+			hippo   = ImageIO.read(this.getClass().getResource("pics/card_hippo.png"));
+			house   = ImageIO.read(this.getClass().getResource("pics/card_house.png"));
+			roses   = ImageIO.read(this.getClass().getResource("pics/card_roses.png"));
+			target  = ImageIO.read(this.getClass().getResource("pics/card_target.png"));
 			
 			backdesign = ImageIO.read(this.getClass().getResource("pics/cardback.png"));
 			
