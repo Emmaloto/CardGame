@@ -12,9 +12,10 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 
 	private JFrame fr;
 //	private Image red, blue, green, yellow, purple, branch;
-	private Image car, clock, diamond, hippo, house, roses, target;
 	private Image  backdesign, screenbg, endimg;	
 	private Image[] cardfaces;
+	private Image gameBG, bgList[], skyBG, bokehBG, milkyBG, lineBG, blocksBG,
+	              sunriseBG, treeBG, forestBG, blueBG;
 	
 	//private Card testCard ;
 	private Card[] playingCards = new Card[2];
@@ -23,6 +24,12 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 	private JLabel statusBar;
 	private JButton restart;
 	private JComboBox<String> typeOfGame;
+	
+	private JMenuBar menu;
+	private JMenu file, bgs;
+	private JMenuItem helpSel, close, noSel, skySel, bowSel, milkSel, lineSel, blockSel, 
+	                  sunSel, treeSel, forestSel, blueSel;
+	
 	private Timer timer = new Timer(5, this);
 	
 	private String endText[], helpText[];
@@ -36,7 +43,9 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 	
 	//private Rectangle rectArea;
 	private boolean cardDisabled = false;
-
+	
+	private Sound flipClip, victoryClip, matchClip;
+	
 
 	public static void main(String args[]){
 		  new MainGame();
@@ -45,31 +54,30 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 
 	public MainGame(){
 		
-		loadImages();
-		
-		//cardfaces = GameUtilities.placeImages(red, blue, green, yellow, purple, branch);
-		cardfaces = GameUtilities.placeImages(car, clock, diamond, hippo, house, roses, target);
-		
+		// Load images to be used
+		loadImages();		
+				
+		// Set up infoscreen background
 		info = new Screen(screenbg);
 		//endScreen = new Screen(endimg);
-		//info.changeTextPosition(50,50);
-		
+		//info.changeTextPosition(50,50);		
 		noOfCards = 8;
 		perLine = 3;
 
+		// Set up game frame
 		fr = new JFrame();
 		fr.setTitle("Pick a Card");
 		fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  //Close window on exit
 		fr.setSize(1200,900);	    
 		fr.getContentPane().add(this);	
 			
-		
+		// Set up status bar and restart button
 		statusBar = new JLabel("0,0");
 		restart = new JButton("Restart");
 		restart.setPreferredSize(new Dimension(120, 40));
 		restart.setFont(buttonFont);
 		
-		
+		// Sets up JComboBox of Game Options
 		String[] options = { "", "6 Cards", "8 Cards", "12 Cards", "16 Cards", 
 				               "20 Cards", "Surprise Me" };
 		typeOfGame = new JComboBox<String>(options);
@@ -77,6 +85,7 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		typeOfGame.setPreferredSize(new Dimension(200, 40));
 		typeOfGame.setFont(helpFont);
 		
+		// Setting up all the game GUIs and listeners
 		JPanel buttonPanel = new JPanel();
 		//buttonPanel.setSize(40,100);
 		buttonPanel.setBackground(Color.LIGHT_GRAY);
@@ -85,7 +94,44 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		
 		//fr.add(statusBar, BorderLayout.NORTH);
 		fr.add(buttonPanel, BorderLayout.SOUTH);
+
+		// Menu Setup
+		menu = new JMenuBar();	
+		
+	    file = new JMenu("File");	    
+	    bgs  = new JMenu("Backgrounds");
+	    
+	    helpSel = new JMenuItem("Help");
+		close = new JMenuItem("Close Game");	
+		file.add(helpSel);
+		file.add(close);
+		
+		noSel = new JMenuItem("None");
+		skySel = new JMenuItem("Landscape");
+		bowSel = new JMenuItem("Spectrum"); 
+		milkSel = new JMenuItem("Milky Way"); 
+		lineSel = new JMenuItem("Wavy Lines");
+		blockSel = new JMenuItem("Blocks");
+        sunSel = new JMenuItem("Sunrise");
+        treeSel = new JMenuItem("Tree");
+        forestSel = new JMenuItem("Forest");
+        blueSel = new JMenuItem("Blue");
+		bgs.add(noSel);
+		bgs.add(skySel);
+		bgs.add(bowSel);
+		bgs.add(milkSel);
+		bgs.add(lineSel);
+		bgs.add(blockSel);
+		bgs.add(sunSel);
+		bgs.add(treeSel);
+		bgs.add(forestSel);
+		bgs.add(blueSel);
 			
+		menu.add(file);
+		menu.add(bgs);
+		
+		fr.setJMenuBar(menu);
+		
 	    fr.setFocusable(true);
 	    fr.requestFocusInWindow();	  
 	    fr.addKeyListener(this);
@@ -94,6 +140,19 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 	    fr.addMouseListener(this);
 		restart.addActionListener(this);
 		typeOfGame.addActionListener(this);
+		
+		helpSel.addActionListener(this);
+		close.addActionListener(this);
+		noSel.addActionListener(this);
+		skySel.addActionListener(this);
+		bowSel.addActionListener(this); 
+		milkSel.addActionListener(this);
+		lineSel.addActionListener(this);
+		blockSel.addActionListener(this);
+        sunSel.addActionListener(this);
+        treeSel.addActionListener(this);
+        forestSel.addActionListener(this);
+        blueSel.addActionListener(this);
 		
 		fr.setVisible(true);
 		
@@ -188,6 +247,8 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 	public void paintComponent(Graphics g){
 		Graphics2D g2 = (Graphics2D)g;	
 		
+		if(gameBG != null) g2.drawImage(gameBG, 0, 0, fr.getWidth(), fr.getHeight(), this);
+		
 		g2.setFont(new Font("TimesRoman", Font.BOLD, 30));
 		g2.drawString("Press h for more game info.", 0, 20 );
 		
@@ -232,12 +293,14 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 
 		    if (bounds.contains(clickPoint)){         //point is inside given image, flip card	    
 	  		  playingCards[i].switchState();
+	  		  flipClip.play();
+	  		  
 	  	  	  cardTurned++;
 	  	  	  clickCounter++;
 	  	  	  
 	  	  	  if(cardTurned >= 2 ) {       // 2 cards are turned, freeze cards and disable card clicking
 	  			card2 = i; 
-	  			if(card2 == card1) cardTurned = 0;         // clicked on same card twice, reflip & ignore
+	  			if(card2 == card1) cardTurned = 0;         // clicked on same card twice, re-flip & ignore
 	  			else{
 	  				timer.start(); 
 	  				startTime = System.currentTimeMillis(); 
@@ -281,6 +344,41 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 			repaint();
 		}
 		
+		// Change from Menu
+		if(action.getSource().getClass() == JMenuItem.class){
+			//System.out.println("BGS CHANGED");
+		
+			if(action.getSource() == close){
+				System.exit(0);
+			}else if(action.getSource() == helpSel){
+				showHelp = !showHelp;
+			}else if(action.getSource() == skySel){
+				gameBG = skyBG;
+			}else if(action.getSource() == bowSel){
+				gameBG = bokehBG;
+			}else if(action.getSource() == milkSel){
+				gameBG = milkyBG;			
+			}else if(action.getSource() == lineSel){
+				gameBG = lineBG;		
+			}else if(action.getSource() == blockSel){
+				gameBG = blocksBG;
+			}else if(action.getSource() == sunSel){
+				gameBG = sunriseBG;
+			}else if(action.getSource() == treeSel){
+				gameBG = treeBG;
+			}else if(action.getSource() == forestSel){
+				gameBG = forestBG;
+			}else if(action.getSource() == blueSel){
+				gameBG = blueBG;
+			}
+			
+			else if(action.getSource() == noSel){
+				gameBG = null;
+			}
+		
+		repaint();
+		}
+		
 	  }	
 
 
@@ -288,10 +386,12 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		// If cards have same face remove them, else re-flip them
 		if(playingCards[card1].getFace() == playingCards[card2].getFace()){
 			playingCards[card1].hideCard();
-			playingCards[card2].hideCard();				
+			playingCards[card2].hideCard();		
+			matchClip.play();
 		}else{
 			playingCards[card1].switchState();
-			playingCards[card2].switchState();			
+			playingCards[card2].switchState();	
+			flipClip.play();
 		}
 		
 		cardDisabled = false;
@@ -318,6 +418,7 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 			  info.changeTextPosition(100, 470);
 			  info.setTextFont(endFont);
 			  
+			  victoryClip.play();
 			  showHelp = true;
 			  //fr.removeKeyListener(this);
 		  }
@@ -335,16 +436,10 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 	public void mouseExited(MouseEvent arg0) {}	
 	
 	private void loadImages(){
+		Image car = null, clock = null, diamond = null, hippo = null, house = null, roses = null, target = null;
 		
 		try {
-			/*
-			blue = ImageIO.read(this.getClass().getResource("pics/bluecard.png"));
-			red = ImageIO.read(this.getClass().getResource("pics/redcard.png"));
-			green = ImageIO.read(this.getClass().getResource("pics/green.png"));
-			yellow = ImageIO.read(this.getClass().getResource("pics/yellowcard.png"));
-			purple = ImageIO.read(this.getClass().getResource("pics/purplecard.png"));
-			branch = ImageIO.read(this.getClass().getResource("pics/leafcard.png"));
-			*/
+
 			car     = ImageIO.read(this.getClass().getResource("pics/card_car.png"));
 			clock   = ImageIO.read(this.getClass().getResource("pics/card_clock.png"));
 			diamond = ImageIO.read(this.getClass().getResource("pics/card_diamond.png"));
@@ -358,11 +453,28 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 			screenbg = ImageIO.read(this.getClass().getResource("pics/infoscreen.png"));
 			endimg = ImageIO.read(this.getClass().getResource("pics/gamescreen_2.png"));
 			
+			skyBG   = ImageIO.read(this.getClass().getResource("pics/bg/turkey-3048299_1920.jpg"));
+			bokehBG = ImageIO.read(this.getClass().getResource("pics/bg/bokeh-3249883_1920.jpg")); 
+			milkyBG = ImageIO.read(this.getClass().getResource("pics/bg/milky-way-2695569_1920.jpg")); 
+			lineBG  = ImageIO.read(this.getClass().getResource("pics/bg/wallpaper-3419273_1920.jpg"));
+			blocksBG = ImageIO.read(this.getClass().getResource("pics/bg/the-background-3418637_1920.jpg"));
+            sunriseBG  = ImageIO.read(this.getClass().getResource("pics/bg/sunrise-1949939_1920.jpg"));
+            treeBG  = ImageIO.read(this.getClass().getResource("pics/bg/background-3390802_1920.jpg"));
+            forestBG  = ImageIO.read(this.getClass().getResource("pics/bg/pattern-3119825_1920.jpg"));
+            blueBG  = ImageIO.read(this.getClass().getResource("pics/bg/desktop-3246124_1920.jpg"));
+			
 		} catch (IOException e) {
 
 			e.printStackTrace();
 		}
+		
+		cardfaces = GameUtilities.placeImages(car, clock, diamond, hippo, house, roses, target);
+		//cardfaces = GameUtilities.placeImages(red, blue, green, yellow, purple, branch);
 
+		bgList = GameUtilities.placeImages(skyBG, bokehBG, milkyBG, lineBG, blocksBG,
+	              sunriseBG, treeBG, forestBG, blueBG);
+		gameBG = null;
+		
 		helpText = GameUtilities.getInputFromFile("gameInfoText.txt", this);
 		helpFont = GameUtilities.getFont("fonts/Philosopher-Italic.ttf", 27f, this);
 		
@@ -370,6 +482,10 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		endFont = GameUtilities.getFont("fonts/TypoGraphica.otf", 40f, this);
 		
 		buttonFont  = GameUtilities.getFont("fonts/AmaliaMutia.ttf", 15f, this);	
+		
+		flipClip = new Sound("audio/card-flip.wav");
+		victoryClip = new Sound("audio/goodresult.wav");
+		matchClip = new Sound("audio/good.wav");
 		
 	}
 
@@ -390,6 +506,9 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		if(e.getKeyCode() == KeyEvent.VK_H){
 			showHelp = !showHelp;
 			fr.repaint();
+		}else if(e.getKeyCode() == KeyEvent.VK_R){
+			  gameBG = bgList[GameUtilities.getRandomInteger(0, bgList.length - 1)];
+			  fr.repaint();
 		}else if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
 			  fr.dispose();
 			  System.exit(0);

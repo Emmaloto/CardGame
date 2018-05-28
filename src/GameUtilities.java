@@ -89,6 +89,7 @@ public class GameUtilities {
   public static String[] getInputFromFile(String location, Object cl){
 	  String [] input = new String[0];
 	  InputStream i = cl.getClass().getClassLoader().getResourceAsStream(location);
+	  System.out.println(cl);
 	  //System.out.println(input != null);
 	  
 	try {

@@ -3,7 +3,7 @@ Welcome to Emmanuel's card game!!
 This is a simple one. Basically match up all the cards by flipping over
 two identical ones at once.
 
-
+Press r to set a random background.
 Press h to show/hide this screen.
 Press Esc to close the game.
 
@@ -12,5 +12,5 @@ general improvements. This is a very rough version, so do not expect
 too much. There is  lot of work to be done on the graphics and cards, 
 and new functions to be added. 
 
-E-mail me at icylaze16@gmail.com to send in your info! Any 
+E-mail me at icyblaze16@gmail.com to send in your info! Any 
 constructive criticism is greatly appreciated!!! :)

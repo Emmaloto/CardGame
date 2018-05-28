@@ -1,6 +1,30 @@
+import java.awt.BorderLayout;
+
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 public class Snippets {
+	//bottomPanel.setLayout(new GridBagLayout());
+	//GridBagConstraints gbc = new GridBagConstraints();
+	//gbc.fill = GridBagConstraints.VERTICAL;
+	//gbc.anchor = GridBagConstraints.SOUTH;
+	//gbc.ipady = 10;
+	//gbc.insets = new Insets(20, 20, 20, 20); 
+	//bottomPanel.setPreferredSize(new Dimension(fr.getWidth(), 30));
 	
+	  //fr.getContentPane().remove(loadPanel);
+	  //if(loadPanel.isVisible()) 
+	  //loadPanel
+	  JProgressBar load = new JProgressBar();
+	  JPanel loadPanel = new JPanel();
+	  //loadPanel.add(load);
+	  //load.setIndeterminate(true);
+	  //load.setStringPainted(false);
+
+	  //fr.add(loadPanel, BorderLayout.NORTH);
+	  //load.setVisible(false);
+	  //load.setValue(0);
+		
 	  
 	  //public HPBar(int x, int y, int height, int cWidth, int cHeight, Color col)
 	  
@@ -8,7 +32,14 @@ public class Snippets {
 	  private int setPosX(int val){
 		  return (int)0/val;
 	  }
-	  
+		/*
+		blue = ImageIO.read(this.getClass().getResource("pics/bluecard.png"));
+		red = ImageIO.read(this.getClass().getResource("pics/redcard.png"));
+		green = ImageIO.read(this.getClass().getResource("pics/green.png"));
+		yellow = ImageIO.read(this.getClass().getResource("pics/yellowcard.png"));
+		purple = ImageIO.read(this.getClass().getResource("pics/purplecard.png"));
+		branch = ImageIO.read(this.getClass().getResource("pics/leafcard.png"));
+		*/
 	  private int setPosY(int val){
 		  return (int)0/val;
 	  }
