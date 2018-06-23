@@ -26,7 +26,7 @@ public class GameUtilities {
   }
   
   
-  public void fileExists(String location){
+  public static void fileExists(String location){
     File f = new File(location);
 		 
 	 if(f.isFile()){
@@ -89,7 +89,7 @@ public class GameUtilities {
   public static String[] getInputFromFile(String location, Object cl){
 	  String [] input = new String[0];
 	  InputStream i = cl.getClass().getClassLoader().getResourceAsStream(location);
-	  System.out.println(cl);
+	  //System.out.println(cl);
 	  //System.out.println(input != null);
 	  
 	try {

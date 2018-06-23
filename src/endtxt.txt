@@ -1,6 +1,13 @@
 Awesome! Select the type of game you want and 
 press Restart to try a new one! 
  
+ To win and unlock the parts of a story in each mode, 
+ you have to win the game in a certain number of clicks 
+ (or less) depending on the number of cards you're playing.
+ 6 Cards  -> 10 Clicks
+ 8 Cards  -> 14 Clicks
+ 12 Cards -> 22 Clicks
+ 16 Cards -> 30 Clicks
+ 20 Cards -> 38 Clicks
  
-Hope you enjoyed this very simple game! More features 
-coming soon!
+Hope you enjoyed playing this game!

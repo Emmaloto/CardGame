@@ -20,33 +20,36 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 	//private Card testCard ;
 	private Card[] playingCards = new Card[2];
 	private Screen info;
+	private StoryScreen story;
 	private Font helpFont, endFont, buttonFont;
 	private JLabel statusBar;
-	private JButton restart;
+	private JButton restart, showstory;   // showstory only for debugging
 	private JComboBox<String> typeOfGame;
 	
 	private JMenuBar menu;
 	private JMenu file, bgs;
-	private JMenuItem helpSel, close, noSel, skySel, bowSel, milkSel, lineSel, blockSel, 
+	private JMenuItem helpSel, clickPts, close, noSel, skySel, bowSel, milkSel, lineSel, blockSel, 
 	                  sunSel, treeSel, forestSel, blueSel;
 	
 	private Timer timer = new Timer(5, this);
 	
-	private String endText[], helpText[];
+	private String [] endText, helpText, part_1, part_2, part_3, part_4, part_5;
 	
 	private int x, y, cardspaceX, cardspaceY, perLine;
 	private double scaling;
 	private int cardTurned = 0, clickCounter, noOfCards;
 	private int card1, card2;
 	private long startTime = 0;
-	private boolean showHelp, gameHasEnded;
+	private boolean showHelp, gameHasEnded, showClicks;
 	
 	//private Rectangle rectArea;
 	private boolean cardDisabled = false;
 	
 	private Sound flipClip, victoryClip, matchClip;
 	
+	int moX, moY;
 
+	
 	public static void main(String args[]){
 		  new MainGame();
 					
@@ -57,10 +60,11 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		// Load images to be used
 		loadImages();		
 				
-		// Set up infoscreen background
+		// Set up infoscreen and story background
 		info = new Screen(screenbg);
-		//endScreen = new Screen(endimg);
-		//info.changeTextPosition(50,50);		
+		//String [] temp = {"", ""};
+		story = new StoryScreen("--DESTINY--", part_1);
+		
 		noOfCards = 8;
 		perLine = 3;
 
@@ -68,20 +72,21 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		fr = new JFrame();
 		fr.setTitle("Pick a Card");
 		fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  //Close window on exit
-		fr.setSize(1200,900);	    
+		fr.setSize(1200, 900);	    
 		fr.getContentPane().add(this);	
 			
 		// Set up status bar and restart button
-		statusBar = new JLabel("0,0");
+		statusBar = new JLabel("0, 0");
 		restart = new JButton("Restart");
+		showstory = new JButton("Show Story");
 		restart.setPreferredSize(new Dimension(120, 40));
 		restart.setFont(buttonFont);
 		
 		// Sets up JComboBox of Game Options
-		String[] options = { "", "6 Cards", "8 Cards", "12 Cards", "16 Cards", 
+		String[] options = { "6 Cards", "8 Cards", "12 Cards", "16 Cards", 
 				               "20 Cards", "Surprise Me" };
 		typeOfGame = new JComboBox<String>(options);
-		typeOfGame.setSelectedIndex(0);
+		typeOfGame.setSelectedIndex(1);
 		typeOfGame.setPreferredSize(new Dimension(200, 40));
 		typeOfGame.setFont(helpFont);
 		
@@ -89,6 +94,7 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		JPanel buttonPanel = new JPanel();
 		//buttonPanel.setSize(40,100);
 		buttonPanel.setBackground(Color.LIGHT_GRAY);
+		//buttonPanel.add(showstory);
 		buttonPanel.add(restart);
 		buttonPanel.add(typeOfGame);
 		
@@ -102,8 +108,10 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 	    bgs  = new JMenu("Backgrounds");
 	    
 	    helpSel = new JMenuItem("Help");
+	    clickPts = new JMenuItem("Show/Hide Counter");
 		close = new JMenuItem("Close Game");	
 		file.add(helpSel);
+		file.add(clickPts);
 		file.add(close);
 		
 		noSel = new JMenuItem("None");
@@ -142,6 +150,7 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		typeOfGame.addActionListener(this);
 		
 		helpSel.addActionListener(this);
+		clickPts.addActionListener(this);
 		close.addActionListener(this);
 		noSel.addActionListener(this);
 		skySel.addActionListener(this);
@@ -153,6 +162,8 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
         treeSel.addActionListener(this);
         forestSel.addActionListener(this);
         blueSel.addActionListener(this);
+        
+        showstory.addActionListener(this);
 		
 		fr.setVisible(true);
 		
@@ -191,7 +202,7 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		// Set up help screen and game variables
 		info.changeScreenBackground(screenbg);
 		info.changeTextPosition(70, 110);
-		info.setTitle("BETA TEST v 1.0");
+		info.setTitle("BETA TEST v 1.3");
 		info.changeTitlePosition(60, 100);
 		info.setTextFont(helpFont);		
 		info.setPhrase(helpText, 40);
@@ -203,6 +214,7 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 	    //fr.addKeyListener(this);
 		
 		showHelp = false;
+		showClicks = true;
 		cardTurned = 0;
 		clickCounter = 0;
 		cardDisabled = false;
@@ -252,6 +264,9 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		g2.setFont(new Font("TimesRoman", Font.BOLD, 30));
 		g2.drawString("Press h for more game info.", 0, 20 );
 		
+		
+		if(showClicks) g2.drawString("Number of Clicks: "+clickCounter, fr.getWidth() - 500, 30);
+		
 		//-------------- Draw Cards				
 		for(int i = 0; i < playingCards.length; i++){
 			if(i % perLine == 0 && i != 0){  // if card will go Offscreen
@@ -275,6 +290,12 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		if(showHelp){
 		    info.drawScreen(0, 0, fr.getWidth()-20, fr.getHeight()-20, g2);		  
 		}
+		
+		if(gameHasEnded && clickCounter <= playingCards.length*2 - 2)
+			g2.drawString("You've unloked another part of the story!", 150, 200 );
+		
+		  //g2.setColor(Color.GREEN);
+		  //g2.fillOval(moX - 5, moY - 5, 10, 10);
 
 	}
 	
@@ -285,7 +306,10 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		
 		if(!cardDisabled){                 // Disable cards when 2 are clicked
 
-		  Point clickPoint = mouse.getPoint();		
+		  //Point clickPoint = mouse.getPoint();
+		  // Have to offset the mouse position for contains to work properly
+		  Point clickPoint = new Point(mouse.getPoint().x - 10, mouse.getPoint().y - 60);
+		  
 		  for(int i = 0; i < playingCards.length && playingCards[i] != null; i++){
 		  // Bounding rectangle ** might move to Card class
 	  	    Rectangle bounds = new Rectangle((int)playingCards[i].getX(), (int)playingCards[i].getY(),
@@ -336,12 +360,27 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 			else if(selectedGame.equals("20 Cards") ) noOfCards = 20;
 			else if(selectedGame.equals("Surprise Me") ){ 
 				int cardNo[] = {6, 8, 12, 16, 20};  
-				noOfCards = cardNo[GameUtilities.getRandomInteger(0, cardNo.length - 2)];
+				noOfCards = cardNo[GameUtilities.getRandomInteger(0, cardNo.length - 1)];
 			}
+				
 			// Resets everything     
 			setup();
 			timer.stop();
 			repaint();
+		}else if(action.getSource() == showstory){
+			if(playingCards.length == 6){
+				story.changeStory(part_1);
+			}else if(playingCards.length == 8){
+				story.changeStory(part_2);
+		    }else if(playingCards.length == 12){
+		    	story.changeStory(part_3);
+		    }else if(playingCards.length == 16){
+		    	story.changeStory(part_4);					
+		    }else if(playingCards.length == 20){
+		    	story.changeStory(part_5);
+		    }
+			story.displayWindow();
+			
 		}
 		
 		// Change from Menu
@@ -352,6 +391,8 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 				System.exit(0);
 			}else if(action.getSource() == helpSel){
 				showHelp = !showHelp;
+			}else if(action.getSource() == clickPts){
+				showClicks = !showClicks;
 			}else if(action.getSource() == skySel){
 				gameBG = skyBG;
 			}else if(action.getSource() == bowSel){
@@ -409,17 +450,34 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		  }
 		  //System.out.println("\\\\\\");
 		  
+		  
 		  if(gameHasEnded){ 
 			  // Leaves un-removable end screen 
 			  info.changeScreenBackground(endimg);
 			  info.setTitle("You're done! That took " + clickCounter +" clicks!");
-			  info.changeTitlePosition(108, 350);
+			  info.changeTitlePosition(108, 150);
 			  info.setPhrase(endText, 40);
-			  info.changeTextPosition(100, 470);
+			  info.changeTextPosition(70, 250);
 			  info.setTextFont(endFont);
 			  
 			  victoryClip.play();
 			  showHelp = true;
+			  
+			  // Display Story
+			  if(clickCounter <= playingCards.length*2 - 2){
+					if(playingCards.length == 6){
+						story.changeStory(part_1);
+					}else if(playingCards.length == 8){
+						story.changeStory(part_2);
+				    }else if(playingCards.length == 12){
+				    	story.changeStory(part_3);
+				    }else if(playingCards.length == 16){
+				    	story.changeStory(part_4);					
+				    }else if(playingCards.length == 20){
+				    	story.changeStory(part_5);
+				    }
+					story.displayWindow();
+			  }
 			  //fr.removeKeyListener(this);
 		  }
 	}	
@@ -437,6 +495,7 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 	
 	private void loadImages(){
 		Image car = null, clock = null, diamond = null, hippo = null, house = null, roses = null, target = null;
+		Image cake = null, basil = null, bfly = null, cow = null, gift = null, phone = null, tort = null, water = null;
 		
 		try {
 
@@ -447,6 +506,15 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 			house   = ImageIO.read(this.getClass().getResource("pics/card_house.png"));
 			roses   = ImageIO.read(this.getClass().getResource("pics/card_roses.png"));
 			target  = ImageIO.read(this.getClass().getResource("pics/card_target.png"));
+			
+			cake  = ImageIO.read(this.getClass().getResource("pics/card_target.png"));
+			basil = ImageIO.read(this.getClass().getResource("pics/card_basil.png"));
+			bfly  = ImageIO.read(this.getClass().getResource("pics/card_butterfly.png"));
+			cow   = ImageIO.read(this.getClass().getResource("pics/card_cow.png"));
+			gift  = ImageIO.read(this.getClass().getResource("pics/card_gift.png"));
+			phone = ImageIO.read(this.getClass().getResource("pics/card_phone.png"));
+			tort  = ImageIO.read(this.getClass().getResource("pics/card_tortise.png"));
+			water = ImageIO.read(this.getClass().getResource("pics/card_water.png"));
 			
 			backdesign = ImageIO.read(this.getClass().getResource("pics/cardback.png"));
 			
@@ -468,7 +536,7 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 			e.printStackTrace();
 		}
 		
-		cardfaces = GameUtilities.placeImages(car, clock, diamond, hippo, house, roses, target);
+		cardfaces = GameUtilities.placeImages(car, clock, diamond, hippo, house, roses, target, cake, basil, bfly, cow, gift, phone, tort, water);
 		//cardfaces = GameUtilities.placeImages(red, blue, green, yellow, purple, branch);
 
 		bgList = GameUtilities.placeImages(skyBG, bokehBG, milkyBG, lineBG, blocksBG,
@@ -479,7 +547,13 @@ public class MainGame extends JComponent implements MouseListener, ActionListene
 		helpFont = GameUtilities.getFont("fonts/Philosopher-Italic.ttf", 27f, this);
 		
 		endText = GameUtilities.getInputFromFile("endtxt.txt", this);
-		endFont = GameUtilities.getFont("fonts/TypoGraphica.otf", 40f, this);
+		endFont = GameUtilities.getFont("fonts/TypoGraphica.otf", 35f, this);
+		
+		part_1 = GameUtilities.getInputFromFile("story/1.txt", this);
+		part_2 = GameUtilities.getInputFromFile("story/2.txt", this);
+		part_3 = GameUtilities.getInputFromFile("story/3.txt", this);
+		part_4 = GameUtilities.getInputFromFile("story/4.txt", this);
+		part_5 = GameUtilities.getInputFromFile("story/5.txt", this);
 		
 		buttonFont  = GameUtilities.getFont("fonts/AmaliaMutia.ttf", 15f, this);	
 		
